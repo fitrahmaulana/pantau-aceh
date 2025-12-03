@@ -48,7 +48,7 @@ Platform crowdsourcing informasi **BBM**, **Listrik**, dan **Elpiji** dari masya
 
 ## 🚀 Demo
 
-Kunjungi: [Coming Soon]
+Kunjungi: https://antrianbbm.netlify.app/
 
 ## 🛠️ Tech Stack
 
@@ -156,3 +156,6 @@ MIT License - Silakan gunakan dan modifikasi sesuai kebutuhan.
 💪 **Dibuat dengan ❤️ untuk membantu masyarakat Aceh**
 
 > ⚠️ Disclaimer: Informasi dalam aplikasi ini bersumber dari crowdsource masyarakat. Mohon verifikasi ulang sebelum mengambil keputusan.
+
+### Hasil Perhitungan dengan Fitur Lengkap
+![Hasil Lengkap](https://raw.githubusercontent.com/fitrahmaulana/pantau-aceh/refs/heads/master/preview.png)
