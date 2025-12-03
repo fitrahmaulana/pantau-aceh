@@ -77,7 +77,7 @@ export default function SPBURecommendation() {
   // ============================================
   // FUNGSI: Transform data dari Supabase ke format lokal
   // ============================================
-  const transformSPBU = (data: SPBURealtime): SPBU => ({
+  const transformSPBU = useCallback((data: SPBURealtime): SPBU => ({
     id: data.id,
     kode: data.kode,
     nama: data.nama,
@@ -92,7 +92,7 @@ export default function SPBURecommendation() {
     updateTerakhir: data.update_terakhir
       ? formatTimeAgo(data.update_terakhir)
       : "Belum ada laporan",
-  });
+  }), []);
 
   // ============================================
   // FUNGSI: Load data dari Supabase
@@ -109,7 +109,7 @@ export default function SPBURecommendation() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [transformSPBU]);
 
   // ============================================
   // EFFECT: Load data & subscribe to realtime
@@ -130,6 +130,10 @@ export default function SPBURecommendation() {
       clearInterval(interval);
     };
   }, [loadData]);
+
+  // State unused
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _unused = lastUpdate;
 
   // ============================================
   // FUNGSI: Filter dan Sort SPBU
