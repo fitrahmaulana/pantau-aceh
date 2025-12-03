@@ -1,13 +1,30 @@
-# 🛢️ Kalkulator Antrian BBM Aceh
+# 📡 Pantau Aceh
 
-Aplikasi web untuk membantu masyarakat Aceh memperkirakan waktu antrian BBM di tengah krisis BBM. Dilengkapi dengan fitur **crowdsource data antrian**, **rekomendasi SPBU terdekat**, dan **live traffic update** secara realtime.
+Platform crowdsourcing informasi **BBM**, **Listrik**, dan **Elpiji** dari masyarakat untuk masyarakat Aceh. Pantau kondisi terkini secara realtime!
 
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss)
 ![Supabase](https://img.shields.io/badge/Supabase-Realtime-3ecf8e?logo=supabase)
 
-## ✨ Fitur
+## ✨ Fitur Utama
+
+### ⚡ Info Listrik
+- Laporan status listrik PLN (hidup/padam) per kota
+- Update realtime dari masyarakat
+- Keterangan tambahan (area padam, estimasi hidup, dll)
+
+### 🔥 Info Elpiji
+- Ketersediaan tabung gas (3kg subsidi, 5.5kg, 12kg)
+- Lokasi pangkalan yang tersedia
+- Info harga eceran terkini
+- Status stok (tersedia/langka/kosong)
+
+### ⛽ Info SPBU & BBM
+- Stok BBM di SPBU (Pertalite, Pertamax, Solar, Dexlite)
+- Status ketersediaan (tersedia/menipis/habis)
+- Kendala teknis (genset rusak, batas pembelian, dll)
+- Harga eceran BBM
 
 ### 🧮 Kalkulator Estimasi Antrian
 - Hitung estimasi waktu tunggu berdasarkan panjang antrian
@@ -17,17 +34,16 @@ Aplikasi web untuk membantu masyarakat Aceh memperkirakan waktu antrian BBM di t
 - Tips & saran berdasarkan kondisi antrian
 
 ### 📍 Rekomendasi SPBU
-- Daftar SPBU di seluruh Aceh
+- Daftar SPBU di Banda Aceh & Aceh Besar
 - Filter berdasarkan kota
 - Sort berdasarkan antrian terpendek atau traffic terlancar
 - Live traffic status (Lancar/Ramai/Macet)
-- Integrasi OpenStreetMap (gratis!)
-- Link langsung ke Google Maps
+- Integrasi Google Maps (gratis tanpa API!)
 
-### 📊 Crowdsource Data Antrian
-- User dapat berkontribusi melaporkan kondisi antrian
+### 📊 Crowdsource Data
+- Masyarakat dapat berkontribusi melaporkan kondisi terkini
 - Data terupdate secara realtime ke semua pengguna
-- Log laporan terbaru dalam bentuk tabel
+- Log laporan dengan paginasi
 - Powered by Supabase Realtime
 
 ## 🚀 Demo
@@ -40,14 +56,14 @@ Kunjungi: [Coming Soon]
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS 4
 - **Database**: Supabase (PostgreSQL + Realtime)
-- **Maps**: OpenStreetMap (embed gratis)
+- **Maps**: Google Maps Embed (gratis)
 
 ## 📦 Instalasi
 
 1. Clone repository
 ```bash
-git clone https://github.com/fitrahmaulana/kalkulator-bbm-aceh.git
-cd kalkulator-bbm-aceh
+git clone https://github.com/fitrahmaulana/pantau-aceh.git
+cd pantau-aceh
 ```
 
 2. Install dependencies
@@ -55,23 +71,26 @@ cd kalkulator-bbm-aceh
 npm install
 ```
 
-3. Setup environment variables (opsional jika ingin pakai Supabase sendiri)
+3. Setup environment variables
 ```bash
 # Buat file .env.local
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-4. Jalankan development server
+4. Setup database
+```bash
+# Jalankan SQL di Supabase SQL Editor:
+# - supabase-setup.sql (data SPBU & antrian)
+# - supabase-crowdsource.sql (crowdsource listrik, elpiji, SPBU)
+```
+
+5. Jalankan development server
 ```bash
 npm run dev
 ```
 
-5. Buka [http://localhost:3000](http://localhost:3000)
-
-## 🗄️ Database Setup (Supabase)
-
-Jika ingin menggunakan Supabase sendiri, jalankan SQL di file `supabase-setup.sql` pada Supabase SQL Editor.
+6. Buka [http://localhost:3000](http://localhost:3000)
 
 ## 📁 Struktur Project
 
@@ -82,15 +101,26 @@ Jika ingin menggunakan Supabase sendiri, jalankan SQL di file `supabase-setup.sq
 │   └── globals.css
 ├── src/
 │   ├── components/
-│   │   ├── FuelCalculator.tsx    # Komponen kalkulator utama
-│   │   ├── SPBURecommendation.tsx # Komponen rekomendasi SPBU
-│   │   └── LaporanAntrian.tsx    # Komponen log laporan
+│   │   ├── FuelCalculator.tsx      # Kalkulator estimasi antrian
+│   │   ├── SPBURecommendation.tsx  # Rekomendasi SPBU + peta
+│   │   ├── LaporanAntrian.tsx      # Log laporan antrian
+│   │   └── CrowdsourceInfo.tsx     # Crowdsource listrik/elpiji/SPBU
 │   └── lib/
-│       └── supabase.ts           # Supabase client & functions
+│       └── supabase.ts             # Supabase client & functions
 ├── public/
-├── supabase-setup.sql            # SQL setup database
+├── supabase-setup.sql              # SQL setup SPBU & antrian
+├── supabase-crowdsource.sql        # SQL setup crowdsource
 └── package.json
 ```
+
+## 🗄️ Database
+
+Aplikasi ini menggunakan 2 file SQL untuk setup database:
+
+| File | Deskripsi |
+|------|-----------|
+| `supabase-setup.sql` | Tabel SPBU, antrian, dan view realtime |
+| `supabase-crowdsource.sql` | Tabel info listrik, elpiji, SPBU dari masyarakat |
 
 ## 🤝 Kontribusi
 
@@ -102,13 +132,14 @@ Kontribusi sangat diterima! Silakan:
 4. Push ke branch (`git push origin fitur-baru`)
 5. Buat Pull Request
 
-## 📝 Todo
+## 📝 Roadmap
 
-- [ ] Validasi crowdsource (batasi spam)
-- [ ] Notifikasi saat laporan berhasil dikirim
+- [ ] Validasi & moderasi laporan (anti spam)
 - [ ] PWA support (offline mode)
-- [ ] Statistik & grafik antrian
-- [ ] Form admin untuk moderasi
+- [ ] Push notification saat ada update penting
+- [ ] Statistik & grafik historis
+- [ ] Ekspansi ke kabupaten/kota lain di Aceh
+- [ ] Fitur verifikasi laporan oleh komunitas
 
 ## 👨‍💻 Author
 
@@ -123,3 +154,5 @@ MIT License - Silakan gunakan dan modifikasi sesuai kebutuhan.
 ---
 
 💪 **Dibuat dengan ❤️ untuk membantu masyarakat Aceh**
+
+> ⚠️ Disclaimer: Informasi dalam aplikasi ini bersumber dari crowdsource masyarakat. Mohon verifikasi ulang sebelum mengambil keputusan.

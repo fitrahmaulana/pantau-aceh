@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kalkulator BBM",
-  description: "Hitung estimasi waktu antrian BBM",
+  title: "Pantau Aceh - Info BBM, Listrik & Elpiji",
+  description: "Platform crowdsourcing info BBM, listrik, dan elpiji dari masyarakat Aceh. Pantau stok SPBU, status listrik PLN, dan ketersediaan elpiji secara realtime.",
 };
 
 export default function RootLayout({

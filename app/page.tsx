@@ -1,6 +1,7 @@
 import FuelCalculator from "@/src/components/FuelCalculator";
 import SPBURecommendation from "@/src/components/SPBURecommendation";
 import LaporanAntrian from "@/src/components/LaporanAntrian";
+import CrowdsourceInfo from "@/src/components/CrowdsourceInfo";
 
 export default function Home() {
   return (
@@ -9,10 +10,10 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white mb-2">
-            🛢️ Kalkulator Antrian BBM Aceh
+            � Pantau Aceh
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Membantu masyarakat Aceh memperkirakan waktu antrian BBM
+            Info BBM, Listrik & Elpiji dari masyarakat untuk masyarakat Aceh
           </p>
         </div>
 
@@ -21,13 +22,15 @@ export default function Home() {
           {/* Kalkulator - Kiri */}
           <div className="w-full lg:w-1/2 space-y-6">
             <FuelCalculator />
-            {/* Log Laporan di bawah Kalkulator */}
-            <LaporanAntrian />
+            {/* Info Crowdsource dari masyarakat */}
+            <CrowdsourceInfo />
           </div>
 
-          {/* Rekomendasi SPBU - Kanan */}
-          <div className="w-full lg:w-1/2">
+          {/* Rekomendasi SPBU & Crowdsource - Kanan */}
+          <div className="w-full lg:w-1/2 space-y-6">
             <SPBURecommendation />
+            {/* Log Laporan di bawah Kalkulator */}
+            <LaporanAntrian />
           </div>
         </div>
       </div>
