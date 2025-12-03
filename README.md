@@ -48,7 +48,7 @@ Platform crowdsourcing informasi **BBM**, **Listrik**, dan **Elpiji** dari masya
 
 ## 🚀 Demo
 
-Kunjungi: https://antrianbbm.netlify.app/
+Kunjungi: https://pantau-aceh.vercel.app/
 
 ## 🛠️ Tech Stack
 
