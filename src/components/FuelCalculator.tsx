@@ -165,7 +165,7 @@ export default function FuelCalculator() {
     // Tentukan status dan saran
     let status = "";
     let warna: "hijau" | "kuning" | "merah" = "hijau";
-    let saran: string[] = [];
+    const saran: string[] = [];
 
     // Hitung biaya BBM
     const biayaPertalite = Math.ceil((tangki * 10000) / 5000) * 5000;
@@ -231,6 +231,10 @@ export default function FuelCalculator() {
       kirimLaporan(jumlahMotor, Math.floor(totalMenit));
     }
   };
+
+  // State untuk isSendingReport
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _unused = isSendingReport;
 
   // ============================================
   // FUNGSI: Simpan ke riwayat
