@@ -23,19 +23,42 @@ type Laporan = {
 export default function LaporanAntrian() {
   const [laporanList, setLaporanList] = useState<Laporan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(laporanList.length / itemsPerPage);
+  
+  // Hitung data yang ditampilkan berdasarkan halaman
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const displayedList = laporanList.slice(startIndex, startIndex + itemsPerPage);
 
   // ============================================
   // FUNGSI: Format waktu (tanggal dan jam)
   // ============================================
-  const formatDateTime = (dateString: string): string => {
-    const utcDateString = dateString.endsWith("Z") ? dateString : dateString + "Z";
-    const date = new Date(utcDateString);
-    return date.toLocaleString("id-ID", {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const formatDateTime = (dateString: string | null): string => {
+    if (!dateString) return "Tidak tersedia";
+    
+    try {
+      // Parse langsung tanpa modifikasi
+      const date = new Date(dateString);
+      
+      // Validasi apakah date valid
+      if (isNaN(date.getTime())) {
+        console.error("Invalid date string:", dateString);
+        return "Tidak tersedia";
+      }
+      
+      // Format: "04 Des, 15:30"
+      return date.toLocaleString("id-ID", {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error, dateString);
+      return "Tidak tersedia";
+    }
   };
 
   // ============================================
@@ -77,6 +100,8 @@ export default function LaporanAntrian() {
           created_at: item.created_at as string,
         }));
         setLaporanList(formattedData);
+        // Reset ke halaman 1 jika ada data baru
+        setCurrentPage(1);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -160,7 +185,7 @@ export default function LaporanAntrian() {
                 </td>
               </tr>
             ) : (
-              laporanList.map((l) => (
+              displayedList.map((l) => (
                 <tr key={l.id} className="text-slate-700 dark:text-slate-300">
                   <td className="py-2 pr-2">
                     <div className="font-medium truncate max-w-[120px]" title={l.spbu_nama}>
@@ -169,7 +194,7 @@ export default function LaporanAntrian() {
                     <div className="text-[10px] text-slate-400">{l.spbu_kota}</div>
                   </td>
                   <td className="py-2 text-center font-medium">{l.jumlah_motor}</td>
-                  <td className="py-2 text-center">{l.estimasi_menit}m</td>
+                  <td className="py-2 text-center">{l.estimasi_menit} meter</td>
                   <td className="py-2 text-center">
                     <span className={`inline-block w-2 h-2 rounded-full ${getStatusDot(l.traffic_status)}`} 
                           title={l.traffic_status} />
@@ -182,6 +207,34 @@ export default function LaporanAntrian() {
             )}
           </tbody>
         </table>
+
+        {/* Paginasi */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+            <span className="text-xs text-slate-400">
+              {startIndex + 1}-{Math.min(startIndex + itemsPerPage, laporanList.length)} dari {laporanList.length}
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-2 py-1 text-xs rounded bg-slate-100 dark:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+              >
+                ←
+              </button>
+              <span className="px-2 text-xs text-slate-600 dark:text-slate-300">
+                {currentPage}/{totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-2 py-1 text-xs rounded bg-slate-100 dark:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+              >
+                →
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

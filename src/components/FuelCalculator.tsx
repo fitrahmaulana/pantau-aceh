@@ -306,7 +306,7 @@ export default function FuelCalculator() {
           {/* Pilih SPBU (untuk crowdsource) */}
           <div>
             <label className="block text-sm font-medium mb-1">
-              📍 Lokasi SPBU <span className="text-xs text-slate-400">(opsional)</span>
+              Lokasi SPBU <span className="text-xs text-slate-400">(opsional)</span>
             </label>
             <select
               value={selectedSpbuId}
@@ -314,15 +314,46 @@ export default function FuelCalculator() {
               className="w-full p-3 rounded-lg bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600"
             >
               <option value="">-- Pilih SPBU untuk bantu update data --</option>
-              {spbuList.map((spbu) => (
-                <option key={spbu.id} value={spbu.id}>
-                  {spbu.nama} - {spbu.kota}
-                </option>
-              ))}
+              {(() => {
+                // Grouping SPBU by kota
+                const groupedByKota: Record<string, typeof spbuList> = {};
+                spbuList.forEach((spbu) => {
+                  const kota = spbu.kota || "Lainnya";
+                  if (!groupedByKota[kota]) {
+                    groupedByKota[kota] = [];
+                  }
+                  groupedByKota[kota].push(spbu);
+                });
+
+                // Sort kota alphabetically
+                const sortedKota = Object.keys(groupedByKota).sort();
+
+                return sortedKota.map((kota) => {
+                  // Sort SPBU dalam setiap kota secara alfabetis
+                  const sortedSpbu = [...groupedByKota[kota]].sort((a, b) => 
+                    a.nama.localeCompare(b.nama, 'id')
+                  );
+
+                  return (
+                    <optgroup key={kota} label={`${kota} (${sortedSpbu.length} SPBU)`}>
+                      {sortedSpbu.map((spbu) => {
+                        // Ambil nama saja, hapus "SPBU" jika ada di awal
+                        const namaClean = spbu.nama.replace(/^SPBU\s+/, "SPBU ");
+                        
+                        return (
+                          <option key={spbu.id} value={spbu.id}>
+                            {namaClean}
+                          </option>
+                        );
+                      })}
+                    </optgroup>
+                  );
+                });
+              })()}
             </select>
             {selectedSpbuId && (
               <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                ✅ Data antrian akan membantu pengguna lain!
+                Data antrian akan membantu pengguna lain
               </p>
             )}
           </div>

@@ -51,48 +51,71 @@ export default function SPBURecommendation() {
   const [spbuList, setSpbuList] = useState<SPBU[]>(FALLBACK_SPBU);
   const [selectedSPBU, setSelectedSPBU] = useState<SPBU | null>(null);
   const [filterKota, setFilterKota] = useState<string>("semua");
-  const [sortBy, setSortBy] = useState<"antrian" | "traffic">("antrian");
+  const [sortBy, setSortBy] = useState<"antrian" | "traffic">("traffic");
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
   // ============================================
   // FUNGSI: Format waktu relatif (dengan fix timezone UTC)
   // ============================================
-  const formatTimeAgo = (dateString: string): string => {
-    // Database menyimpan dalam UTC, tambahkan 'Z' agar JavaScript parse sebagai UTC
-    const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
-    const date = new Date(utcDateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
+  const formatTimeAgo = (dateString: string | null): string => {
+    // Handle null atau undefined
+    if (!dateString) return "Belum ada laporan";
+    
+    try {
+      // Parse date langsung - format dari Supabase sudah include timezone
+      // Contoh: '2025-12-03T20:30:35.772728+00:00'
+      const date = new Date(dateString);
+      
+      // Validasi apakah date valid
+      if (isNaN(date.getTime())) {
+        console.error("Invalid date:", dateString);
+        return "Belum ada laporan";
+      }
+      
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
 
-    if (diffMins < 0) return "Baru saja"; // Handle jika ada delay
-    if (diffMins < 1) return "Baru saja";
-    if (diffMins < 60) return `${diffMins} menit lalu`;
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours} jam lalu`;
-    return `${Math.floor(diffHours / 24)} hari lalu`;
+      if (diffMins < 0) return "Baru saja"; // Handle jika ada delay
+      if (diffMins < 1) return "Baru saja";
+      if (diffMins < 60) return `${diffMins} menit lalu`;
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `${diffHours} jam lalu`;
+      const days = Math.floor(diffHours / 24);
+      return `${days} hari lalu`;
+    } catch (error) {
+      console.error("Error formatting date:", error, dateString);
+      return "Belum ada laporan";
+    }
   };
 
   // ============================================
   // FUNGSI: Transform data dari Supabase ke format lokal
   // ============================================
-  const transformSPBU = (data: SPBURealtime): SPBU => ({
-    id: data.id,
-    kode: data.kode,
-    nama: data.nama,
-    alamat: data.alamat || "",
-    kota: data.kota || "",
-    trafficStatus: data.traffic_status || "unknown",
-    antrianMotor: data.antrian_motor || 0,
-    estimasiMenit: data.estimasi_menit || 0,
-    lat: Number(data.lat) || 0,
-    lng: Number(data.lng) || 0,
-    buka24Jam: data.buka_24_jam || false,
-    updateTerakhir: data.update_terakhir
+  const transformSPBU = (data: SPBURealtime): SPBU => {
+    // Jika ada data antrian tapi update_terakhir null, gunakan fallback
+    const updateText = data.update_terakhir 
       ? formatTimeAgo(data.update_terakhir)
-      : "Belum ada laporan",
-  });
+      : data.antrian_motor > 0 
+        ? "Data terbaru"  // Ada data antrian berarti baru diupdate
+        : "Belum ada laporan";
+    
+    return {
+      id: data.id,
+      kode: data.kode,
+      nama: data.nama,
+      alamat: data.alamat || "",
+      kota: data.kota || "",
+      trafficStatus: data.traffic_status || "unknown",
+      antrianMotor: data.antrian_motor || 0,
+      estimasiMenit: data.estimasi_menit || 0,
+      lat: Number(data.lat) || 0,
+      lng: Number(data.lng) || 0,
+      buka24Jam: data.buka_24_jam || false,
+      updateTerakhir: updateText,
+    };
+  };
 
   // ============================================
   // FUNGSI: Load data dari Supabase
@@ -208,14 +231,16 @@ export default function SPBURecommendation() {
   };
 
   // ============================================
-  // FUNGSI: Generate embed URL (GRATIS!)
+  // FUNGSI: Generate Google Maps embed URL (GRATIS tanpa API!)
   // ============================================
   const getMapEmbedUrl = () => {
-    // Menggunakan OpenStreetMap embed - 100% GRATIS!
-    const lat = selectedSPBU?.lat || 5.5485;
-    const lng = selectedSPBU?.lng || 95.3238;
-    
-    return `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.01},${lat - 0.01},${lng + 0.01},${lat + 0.01}&layer=mapnik&marker=${lat},${lng}`;
+    if (selectedSPBU) {
+      // Embed dengan search query - GRATIS!
+      const query = encodeURIComponent(`${selectedSPBU.nama} ${selectedSPBU.alamat} ${selectedSPBU.kota} Aceh`);
+      return `https://www.google.com/maps?q=${query}&output=embed`;
+    }
+    // Default: Pusat Banda Aceh
+    return `https://www.google.com/maps?q=SPBU+Banda+Aceh&output=embed`;
   };
 
   // ============================================
@@ -269,21 +294,6 @@ export default function SPBURecommendation() {
         </div>
       </div>
 
-      {/* Alert Krisis */}
-      <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-        <div className="flex items-start gap-2">
-          <span className="text-lg">⚠️</span>
-          <div>
-            <p className="text-sm font-semibold text-red-700 dark:text-red-400">
-              Info Krisis BBM Aceh
-            </p>
-            <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">
-              Pasokan terbatas. Gunakan estimator untuk menghemat waktu Anda.
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Filter dan Sort */}
       <div className="flex gap-2 mb-4">
         <select
@@ -309,7 +319,7 @@ export default function SPBURecommendation() {
         </select>
       </div>
 
-      {/* Peta OpenStreetMap - GRATIS! */}
+      {/* Peta Google Maps - GRATIS tanpa API! */}
       <div className="relative mb-4 rounded-xl overflow-hidden shadow-md">
         <iframe
           src={getMapEmbedUrl()}
@@ -317,8 +327,10 @@ export default function SPBURecommendation() {
           height="200"
           style={{ border: 0 }}
           loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allowFullScreen
           className="w-full"
-          title="Peta SPBU Aceh"
+          title="Peta SPBU Aceh - Google Maps"
         />
 
         {/* Overlay info */}
